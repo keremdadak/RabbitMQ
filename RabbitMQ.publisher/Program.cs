@@ -13,13 +13,13 @@ namespace RabbitMQ.publisher
             factory.Uri = new Uri("amqp://guest:guest@localhost:5672/");
             using var connection= factory.CreateConnection();
             var channel = connection.CreateModel();
-            channel.QueueDeclare("hello-queue", true, false, false);
+            channel.ExchangeDeclare("logs-fanout", ExchangeType.Fanout, true);
 
             Enumerable.Range(1, 50).ToList().ForEach(x =>
             {
                 string message = $"Message {x}";
                 var messageBody = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish(String.Empty, "hello-queue", null, messageBody);
+                channel.BasicPublish("logs-fanout","", null, messageBody);
                 Console.WriteLine($"Mesaj gönderilmiştir: {message}");
                 
             });

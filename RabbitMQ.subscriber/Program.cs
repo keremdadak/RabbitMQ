@@ -15,12 +15,16 @@ namespace RabbitMQ.subscriber
             using var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
 
+            //random kuyruk ismi oluşturma
+            var randomQueueName = "log-database-save-queue";//channel.QueueDeclare().QueueName;
+            channel.QueueDeclare(randomQueueName, true, false, false);
+            channel.QueueBind(randomQueueName, "logs-fanout", "", null);
 
             channel.BasicQos(0, 1, false);
             var consumer = new EventingBasicConsumer(channel);
 
-            channel.BasicConsume("hello-queue",false,consumer);
-
+            channel.BasicConsume(randomQueueName, false,consumer);
+            Console.WriteLine("Loglar Dinleniyor...");
             consumer.Received += (object sender, BasicDeliverEventArgs e) =>
             {
                 var message = Encoding.UTF8.GetString(e.Body.ToArray());
